@@ -47,7 +47,7 @@ function render(){
  document.querySelectorAll(".matrix-item").forEach(b=>b.onclick=()=>{const x=b.dataset.layer;if(x==="architecture"){S.selected.includes(x)?S.selected=S.selected.filter(y=>y!==x):S.selected.push(x);S.strength.architecture=100}else{S.selected.includes(x)?S.selected=S.selected.filter(y=>y!==x):S.selected.push(x)}render()});
  document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;render()});
  document.querySelector("#copy").onclick=()=>navigator.clipboard.writeText(makePrompt());
- document.querySelector("#run").onclick=async()=>{if(!(S.target&&S.reference))return;S.status="RUNNING";update();const result=await runPipeline(S);S.status=result.ok?"MODEL COMPLETE":"API READY / NO BACKEND";update();};
+ document.querySelector("#run").onclick=async()=>{if(!(S.target&&S.reference))return;S.status="RUNNING";update();const result=await runPipeline(S);if(result.ok&&result.data.image){const el=document.querySelector('#resultImage');el.src=result.data.image;el.hidden=false}S.status=result.ok?((result.data.verification?.overall_pass?'GEOMETRY PASS':'GEOMETRY REVIEW')):(result.error||'API ERROR');update();};
  update();
 }
 render();
