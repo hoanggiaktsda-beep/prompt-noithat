@@ -1,1 +1,12 @@
-export const LAYERS=["architecture","furniture","material","lighting","color","style"];\nexport const LOCKED=["walls","openings","ceiling_height","floor_geometry","camera","perspective"];\n\nexport function buildPipeline(state){\n  const selected=LAYERS.filter(x=>state.selected.includes(x));\n  return {\n    target_image:state.target?.name||null,\n    reference_image:state.reference?.name||null,\n    analyze:["target_geometry","target_camera","reference_layers"],\n    transfer:selected.map(layer=>({layer,strength:Number(state.strength?.[layer]??100)})),\n    masks:selected.map(layer=>layer+"_mask"),\n    preserve_geometry:!!state.preserve,\n    locked:state.preserve?LOCKED:[],\n    post_check:["geometry_consistency","camera_consistency","furniture_integrity","visual_transfer"],\n    endpoint:"/api/sync"\n  };\n}\n\nexport async function runPipeline(state){\n  const plan=buildPipeline(state);\n  try{\n    const res=await fetch("/api/sync",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(plan)});\n    if(!res.ok)throw new Error("API "+res.status);\n    return {ok:true,data:await res.json(),plan};\n  }catch(error){\n    return {ok:false,error:String(error.message||error),plan};\n  }\n}\n
+export const LAYERS=["architecture","furniture","material","lighting","color","style"];
+export const LOCKED=["walls","openings","ceiling_height","floor_geometry","camera","perspective"];
+export function buildPipeline(state){
+ const selected=LAYERS.filter(x=>(state.selected||[]).includes(x));
+ return {target_image:state.target?.name||null,reference_image:state.reference?.name||null,analyze:["target_geometry","target_camera","reference_layers"],transfer:selected.map(layer=>({layer,strength:Number(state.strength?.[layer]??100)})),masks:selected.map(layer=>layer+"_mask"),preserve_geometry:!!state.preserve),locked:state.preserve?LOCKED:[],post_check:["geometry_consistency","camera_consistency","furniture_integrity","visual_transfer"],endpoint:"/api/sync"};
+}
+export async function runPipeline(state){
+ const plan=buildPipeline(state),form=new FormData();
+ form.append("target",state.target); form.append("reference",state.reference); form.append("state",JSON.stringify(state));
+ try{const base=window.HOANGGIA_API_URL||"http://localhost:8787",res=await fetch(base+"/api/sync",{method:"POST",body:form}),data=await res.json();if(!res.ok)throw new Error(data.error||("API "+res.status));return {ok:true,data,plan};}
+ catch(error){return {ok:false,error:String(error.message||error),plan};}
+}
