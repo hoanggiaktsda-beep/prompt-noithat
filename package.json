@@ -1,0 +1,1 @@
+{"name":"hoanggia-ai-image-backend","private":true,"type":"module","scripts":{"start":"node server/index.mjs","dev":"node --watch server/index.mjs"},"dependencies":{"cors":"^2.8.5","dotenv":"^16.4.7","express":"^5.1.0","multer":"^2.0.2","openai":"^6.0.0"}}
