@@ -1,3 +1,4 @@
+import {buildSpatialBlueprint,createGeometryContract,verifyAgainstBlueprint,buildGuardPrompt} from "./geometry-guard.mjs";
 const MODEL=process.env.VISION_MODEL||"gpt-5.6-luna";
 const IMAGE_MODEL=process.env.IMAGE_MODEL||"gpt-image-2";
 async function meta(buffer){const sharp=(await import("sharp")).default;return sharp(buffer).metadata();}
@@ -48,3 +49,5 @@ export async function verifyGeometry(client,target,resultDataUrl){
   {type:"input_image",image_url:dataUrl(target),detail:"high"},{type:"input_image",image_url:resultDataUrl,detail:"high"}]}]});
  return jsonFrom(r.output_text);
 }
+
+export {buildSpatialBlueprint,createGeometryContract,verifyAgainstBlueprint,buildGuardPrompt};
