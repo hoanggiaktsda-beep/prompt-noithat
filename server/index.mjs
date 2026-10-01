@@ -21,9 +21,9 @@ app.post("/api/sync",upload.fields([{name:"target",maxCount:1},{name:"reference"
   const state=JSON.parse(req.body.state||"{}");
   const analysis=await analyzeImages(client,target,reference,state);
   const instruction=buildInstruction(analysis,state);
-  const generated=await generateEdit(client,target,reference,instruction);
+  const generated=await generateEdit(client,target,reference,instruction,analysis.pixel_mask);
   const verification=await verifyGeometry(client,target,generated.imageDataUrl);
-  res.json({ok:true,analysis,instruction,verification,image:generated.imageDataUrl,model:generated.model});
+  res.json({ok:true,analysis,instruction,verification,image:generated.imageDataUrl,mask:analysis.pixel_mask,model:generated.model});
  }catch(error){
   console.error(error);
   res.status(500).json({ok:false,error:error.message||"Pipeline failed"});
